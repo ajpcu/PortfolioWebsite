@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" ng-app="portfolioApp">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Akanksha Jharia – Portfolio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body ng-controller="MainController as main">
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header-inner container">
+      <a href="#" class="logo">Akanksha Jharia</a>
+      <nav class="nav">
+        <a href="#about" ng-click="main.scrollTo('about')">About</a>
+        <a href="#projects" ng-click="main.scrollTo('projects')">Projects</a>
+        <a href="#skills" ng-click="main.scrollTo('skills')">Skills</a>
+        <a href="#contact" ng-click="main.scrollTo('contact')">Contact</a>
+      </nav>
+      <button id="menuToggle" class="hamburger" aria-label="Menu" ng-click="main.toggleMobileMenu()">☰</button>
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle Theme" ng-click="main.toggleTheme()">🌗</button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero container">
+    <div>
+      <h1>Hi, I'm {{main.profile.name}}</h1>
+      <p class="lead">{{main.profile.tagline}}</p>
+      <a href="#projects" class="btn" ng-click="main.scrollTo('projects')">View Projects</a>
+      <button id="downloadResume" class="btn ghost" ng-click="main.downloadResume()">Download Resume</button>
+    </div>
+    <div class="avatar-card">
+      <svg class="avatar-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <circle cx="12" cy="7" r="5" stroke-width="2"></circle>
+        <path d="M2 22c2-4 6-7 10-7s8 3 10 7" stroke-width="2"></path>
+      </svg>
+      <p>{{main.profile.expertise}}</p>
+      <div style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--muted);">
+        <span>Profile Views: {{main.profileViews}}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="about container">
+    <h2>About Me</h2>
+    <p>{{main.profile.bio}}</p>
+    <ul class="meta">
+      <li><strong>Location:</strong> {{main.profile.location}}</li>
+      <li><strong>Email:</strong> {{main.profile.email}}</li>
+      <li><strong>Github:</strong> 
+        <a ng-href="{{main.profile.github}}" target="_blank">{{main.profile.githubDisplay}}</a>
+      </li>
+      <li><strong>LinkedIn:</strong> 
+        <a ng-href="{{main.profile.linkedin}}" target="_blank">{{main.profile.linkedinDisplay}}</a>
+      </li>
+    </ul>
+    
+    <!-- Angular Feature: Live Clock -->
+    <div style="margin-top: 1.5rem; text-align: center; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+      <h3 style="color: var(--gold); margin-bottom: 0.5rem; font-size: 1rem;">Current Time</h3>
+      <div style="font-size: 1.5rem; font-weight: 600;">{{main.currentTime | date:'HH:mm:ss'}}</div>
+      <div style="font-size: 0.9rem; color: var(--muted); margin-top: 0.3rem;">{{main.currentTime | date:'EEEE, MMMM d, yyyy'}}</div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="projects container">
+    <h2>Projects</h2>
+    
+    <!-- Angular Feature: Filter Projects -->
+    <div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+      <button class="btn" 
+              ng-class="{'ghost': main.filter !== 'all'}"
+              ng-click="main.filterProjects('all')"
+              style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">
+        All ({{main.projects.length}})
+      </button>
+      <button class="btn" 
+              ng-class="{'ghost': main.filter !== 'Machine Learning'}"
+              ng-click="main.filterProjects('Machine Learning')"
+              style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">
+        ML ({{main.countByTag('Machine Learning')}})
+      </button>
+      <button class="btn" 
+              ng-class="{'ghost': main.filter !== 'Web Development'}"
+              ng-click="main.filterProjects('Web Development')"
+              style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">
+        Web ({{main.countByTag('Web Development')}})
+      </button>
+      <button class="btn" 
+              ng-class="{'ghost': main.filter !== 'Personal Project'}"
+              ng-click="main.filterProjects('Personal Project')"
+              style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">
+        Personal ({{main.countByTag('Personal Project')}})
+      </button>
+    </div>
+
+    <div class="projects-grid">
+      <!-- Angular ng-repeat for projects -->
+      <div class="card project-card" 
+           ng-repeat="project in main.filteredProjects track by project.id"
+           ng-click="main.openModal(project)">
+        <div class="thumb"></div>
+        <div class="card-inner">
+          <span class="tag">{{project.tag}}</span>
+          <h3 class="card-title">{{project.title}}</h3>
+          <p class="card-sub">{{project.subtitle}}</p>
+          <div class="card-footer">
+            <span class="card-meta">{{project.date}}</span>
+            <button class="btn ghost link-more">More</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Show message if no projects match filter -->
+    <div ng-if="main.filteredProjects.length === 0" 
+         style="text-align: center; padding: 2rem; color: var(--muted);">
+      No projects found for this category.
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="skills container">
+    <h2>Technical Skills</h2>
+
+    <!-- Angular ng-repeat for skills -->
+    <div class="bar" ng-repeat="skill in main.skills track by skill.name">
+      <label>{{skill.name}}</label>
+      <div class="progress">
+        <span ng-style="{'width': skill.percentage + '%'}" 
+              role="progressbar" 
+              aria-valuemin="0" 
+              aria-valuemax="100" 
+              aria-valuenow="{{skill.percentage}}">
+          {{skill.percentage}}%
+        </span>
+      </div>
+    </div>
+
+    <!-- Angular Feature: Website Feedback -->
+    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--panel); border-radius: var(--radius); border: 1px solid rgba(255,255,255,0.05);">
+      <h3 style="color: var(--gold); margin-bottom: 1rem;">Rate This Website</h3>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem;">Your Name:</label>
+        <input type="text" 
+               ng-model="main.newFeedback.name" 
+               placeholder="e.g., John Doe"
+               style="width: 100%; padding: 0.6rem; background: var(--bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-family: inherit;">
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem;">Rating: {{main.newFeedback.rating}}/10</label>
+        <input type="range" 
+               ng-model="main.newFeedback.rating" 
+               min="1" 
+               max="10"
+               style="width: 100%;">
+        <div style="display: flex; justify-content: space-between; margin-top: 0.3rem; font-size: 0.8rem; color: var(--muted);">
+          <span>Poor</span>
+          <span>Excellent</span>
+        </div>
+      </div>
+      <button class="btn" ng-click="main.addFeedback()">
+        Submit Rating
+      </button>
+      <span ng-if="main.feedbackStatus" 
+            style="margin-left: 1rem; color: var(--gold); font-weight: 600;">
+        {{main.feedbackStatus}}
+      </span>
+      
+      <!-- Display Feedback -->
+      <div ng-if="main.feedbacks.length > 0" style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1);">
+        <h4 style="color: var(--gold); margin-bottom: 1rem;">Recent Ratings ({{main.feedbacks.length}})</h4>
+        <div style="margin-bottom: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+          <div style="font-size: 0.9rem; color: var(--muted);">Average Rating:</div>
+          <div style="font-size: 1.8rem; font-weight: 700; color: var(--gold);">{{main.getAverageRating()}} / 10</div>
+        </div>
+        <div ng-repeat="feedback in main.feedbacks track by $index" 
+             style="padding: 0.8rem; background: rgba(255,255,255,0.03); border-radius: 8px; margin-bottom: 0.5rem; border-left: 3px solid var(--gold);">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 600;">{{feedback.name}}</span>
+            <span style="color: var(--gold); font-weight: 700;">{{feedback.rating}}/10</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem;">{{feedback.timestamp | date:'short'}}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact container">
+    <h2>Contact Me</h2>
+    <ul class="contact-list">
+      <li>Email: <button id="copyBtn" class="btn ghost" ng-click="main.copyEmail()">{{main.copyButtonText}}</button></li>
+      <li><a ng-href="{{main.profile.github}}" target="_blank">GitHub</a></li>
+      <li><a ng-href="{{main.profile.linkedin}}" target="_blank">LinkedIn</a></li>
+    </ul>
+
+    <!-- Angular Feature: Contact Form -->
+    <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.05); border-radius: var(--radius);">
+      <h3 style="color: var(--gold); margin-bottom: 1rem;">Send a Message</h3>
+      <form ng-submit="main.submitContactForm()" name="contactForm">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem;">Your Name:</label>
+          <input type="text" 
+                 ng-model="main.contactForm.name" 
+                 required
+                 style="width: 100%; padding: 0.6rem; background: var(--bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-family: inherit;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem;">Your Email:</label>
+          <input type="email" 
+                 ng-model="main.contactForm.email" 
+                 required
+                 style="width: 100%; padding: 0.6rem; background: var(--bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-family: inherit;">
+        </div>
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem;">Message:</label>
+          <textarea ng-model="main.contactForm.message" 
+                    required
+                    rows="4"
+                    style="width: 100%; padding: 0.6rem; background: var(--bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: var(--text); font-family: inherit; resize: vertical;"></textarea>
+        </div>
+        <button type="submit" class="btn" ng-disabled="contactForm.$invalid">Send Message</button>
+        <span ng-if="main.contactFormStatus" 
+              style="margin-left: 1rem; color: var(--gold);">
+          {{main.contactFormStatus}}
+        </span>
+      </form>
+
+      <!-- Display submitted messages -->
+      <div ng-if="main.messages.length > 0" style="margin-top: 2rem;">
+        <h4 style="color: var(--gold); margin-bottom: 1rem;">Received Messages ({{main.messages.length}})</h4>
+        <div ng-repeat="msg in main.messages track by $index" 
+             style="padding: 1rem; background: var(--panel); border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid rgba(255,255,255,0.05);">
+          <div style="font-weight: 600; margin-bottom: 0.3rem;">{{msg.name}} ({{msg.email}})</div>
+          <div style="color: var(--muted); font-size: 0.9rem;">{{msg.message}}</div>
+          <div style="font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem;">{{msg.timestamp | date:'short'}}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL -->
+  <div id="modal" class="modal" ng-class="{'modal-open': main.modalOpen}" aria-hidden="{{!main.modalOpen}}">
+    <div class="modal-panel">
+      <button id="modalClose" class="modal-close" aria-label="Close" ng-click="main.closeModal()">✕</button>
+      <h3 id="modalTitle">{{main.selectedProject.title}}</h3>
+      <p id="modalMeta" class="card-meta">{{main.selectedProject.date}}</p>
+      <p id="modalDesc">{{main.selectedProject.description}}</p>
+      <p id="modalTech"><strong>Technologies:</strong> {{main.selectedProject.tech}}</p>
+      
+      <!-- Angular Feature: Project Likes -->
+      <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+        <button class="btn" ng-click="main.likeProject()" style="padding: 0.5rem 1rem;">
+          👍 Like ({{main.selectedProject.likes}})
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    © <span id="year">{{main.currentYear}}</span> Akanksha Jharia. All rights reserved.
+    <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+      Built with Angular.js | Last updated: {{main.lastUpdated | date:'medium'}}
+    </div>
+  </footer>
+
+  <!-- SCRIPTS - Load in correct order -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.3/angular.min.js"></script>
+  <script src="sketch.js"></script>
+</body>
+</html>
